@@ -1,33 +1,38 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Main {
     public static void main(String[] args) {
 
         Bank bank = new Bank();
-        List<Account> accounts = createAccountList(100);
+
+        int amountOfAccounts = 3;
+
+        List<Account> accounts = createAccountList(amountOfAccounts);
 
         addAccountsToBank(bank, accounts);
 
-        Account account1 = bank.getAccounts().get("1");
-        Account account2 = bank.getAccounts().get("2");
+        int sumOfTransaction = 500_000;
 
-        long sumOfTransaction = 50001;
-        System.out.println("Счет: " + account1.getAccNumber() + "\nБаланс: " + account1.getMoney() + "€");
-        System.out.println("Счет: " + account2.getAccNumber() + "\nБаланс: " + account2.getMoney() + "€");
+        System.out.println(sumOfTransaction);
+        Account account1 = accounts.get(0);
+        Account account2 = accounts.get(1);
 
-        System.out.println("Перевод " + sumOfTransaction + "€ со счета " + account1.getAccNumber() + " на счет " + account2.getAccNumber());
+        bank.printAccountsData();
+
         bank.transfer(account1.getAccNumber(), account2.getAccNumber(), sumOfTransaction);
 
-        System.out.println("Баланс после транзакции:");
-        System.out.println("Счет: " + account1.getAccNumber() + "\nБаланс: " + account1.getMoney() + "€");
-        System.out.println("Счет: " + account2.getAccNumber() + "\nБаланс: " + account2.getMoney() + "€");
+        System.out.println(account1.getAccNumber() + ": " + account1.getMoney());
+        System.out.println(account2.getAccNumber() + ": " + account2.getMoney());
+
 
         System.out.println(bank.getBalance("1"));
-
-
-
-
+        for (Account account : accounts) {
+            if (account.getAccNumber().equals("1")) {
+                System.out.println(account.getMoney());
+            }
+        }
     }
 
     public static List<Account> createAccountList(int amount) {

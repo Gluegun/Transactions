@@ -9,6 +9,8 @@ public class Bank extends Thread {
     @Getter
     @Setter
     private HashMap<String, Account> accounts;
+    private final Object lock = new Object();
+    private final Object lock2 = new Object();
 
     private final Random random = new Random();
 
@@ -22,6 +24,7 @@ public class Bank extends Thread {
         accounts = new HashMap<>();
     }
 
+
     /**
      * TODO: реализовать метод. Метод переводит деньги между счетами.
      * Если сумма транзакции > 50000, то после совершения транзакции,
@@ -29,37 +32,70 @@ public class Bank extends Thread {
      * метод isFraud. Если возвращается true, то делается блокировка
      * счетов (как – на ваше усмотрение)
      */
-    public void transfer(String fromAccountNum, String toAccountNum, long amount) {
 
-        Account fromAccount;
-        Account toAccount;
-        long sum;
+//    public void transfer(String fromAccountNum, String toAccountNum, long amount) {
+//
+//        if (amount < 0) {
+//            System.out.println("Неверная сумма транзакции");
+//            return;
+//        }
+//
+//        Account fromAccount;
+//        Account toAccount;
+//        long balance;
+//
+//        if (accounts.containsKey(fromAccountNum) && accounts.containsKey(toAccountNum)) {
+//
+//            fromAccount = accounts.get(fromAccountNum);
+//            toAccount = accounts.get(toAccountNum);
+//            balance = fromAccount.getMoney() - amount;
+//
+//            if (balance < 0) {
+//                System.out.println("Недостаточно средств на счету, операция невозможна");
+//                return;
+//            }
+//
+//            if (amount > 50000) {
+//                try {
+//                    if (isFraud(fromAccountNum, toAccountNum, amount)) {
+//                        return;
+//                    }
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            } else {
+//                fromAccount.setMoney(balance);
+//                toAccount.setMoney(toAccount.getMoney() + amount);
+//            }
+//        } else {
+//            System.out.println("Неверно введен номер счета");
+//        }
+//    }
+    public void transfer(String accountNumFrom, String accountNumTo, long amount) {
+        if (amount < 0) {
+            System.out.println("Неверная сумма транзакции");
+            return;
+        }
 
-        if (accounts.containsKey(fromAccountNum) && accounts.containsKey(toAccountNum)) {
+        Account accountFrom;
+        Account accountTo;
 
-            fromAccount = accounts.get(fromAccountNum);
-            toAccount = accounts.get(toAccountNum);
-            sum = fromAccount.getMoney() - amount;
+        if (accounts.containsKey(accountNumFrom) && accounts.containsKey(accountNumTo)) {
+            accountFrom = accounts.get(accountNumFrom);
+            accountTo = accounts.get(accountNumTo);
 
-            if (amount > 50000) {
-                try {
-                    if (isFraud(fromAccountNum, toAccountNum, amount)) {
 
-                        System.out.println(true);
-                        return;
+            try {
+                if (amount > 50000 && isFraud(accountNumFrom, accountNumTo, amount)) {
 
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    System.out.println("Операция заблокирована службой безопасности");
+                } else {
+                    deposit(accountFrom, accountTo, amount);
                 }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            if (sum < 0) {
-                System.out.println("Недостаточно средств на счету, операция невозможна");
 
-            } else {
-                fromAccount.setMoney(sum);
-                toAccount.setMoney(toAccount.getMoney() + amount);
-            }
         } else {
             System.out.println("Неверно введен номер счета");
         }
@@ -76,13 +112,26 @@ public class Bank extends Thread {
         return 0;
     }
 
+    private void deposit(Account from, Account to, long amount) {
+
+        long balance = from.getMoney() - amount;
+        if (balance < 0) {
+            System.out.println("Недостаточно средств");
+            return;
+        } else {
+            from.setMoney(balance);
+            to.setMoney(to.getMoney() + amount);
+        }
+
+
+    }
+
 
     public void addAccountsToMap(String accountNum, Account account) {
         accounts.put(accountNum, account);
     }
 
     public void printAccountsData() {
-        accounts.forEach((key, value) -> System.out.println(key + ": " + value));
+        accounts.forEach((key, value) -> System.out.println("Account " + key + ": " + value));
     }
-
 }
