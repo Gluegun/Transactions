@@ -25,10 +25,19 @@ public class TransferTest extends TestCase {
 
         bank.transfer(account1.getAccNumber(), account2.getAccNumber(), amount);
 
-        long expected = 50000;
-        long actual = account2.getMoney();
+        long expectedFrom1Account = ac1Money - amount;
+        long actualFrom1Account = account1.getMoney();
 
-        assertEquals(expected, actual);
+        long expectedFrom2Account = amount + ac2Money;
+        long actualFrom2Account = account2.getMoney();
+
+        long totalBalanceExpected = (ac1Money - amount) + (ac2Money + amount);
+        long totalBalanceActual = account2.getMoney() + account1.getMoney();
+
+        assertEquals(expectedFrom1Account, actualFrom1Account);
+        assertEquals(expectedFrom2Account, actualFrom2Account);
+        assertEquals(totalBalanceExpected, totalBalanceActual);
+
     }
 
     public void testWithDrawLessThan50k() {
@@ -54,25 +63,21 @@ public class TransferTest extends TestCase {
 
     }
 
-    public void testDepositMoreThan50k() throws InterruptedException {
+    public void testNotEnoughMoney() {
 
-        long amount = 55000;
-        long expected;
-        long actual;
+        long amount = 45000;
 
-        if (bank.isFraud(account1.getAccNumber(), account2.getAccNumber(), amount)) {
-            expected = ac2Money;
-            actual = account2.getMoney();
-        } else {
-            expected = ac2Money + amount;
-            actual = account2.getMoney();
-        }
+        bank.transfer(account2.getAccNumber(), account1.getAccNumber(), amount);
+
+        long expected = ac2Money;
+        long actual = account2.getMoney();
+
+        String status = "Недостаточно средств";
 
         assertEquals(expected, actual);
-
+        assertEquals(status, "Недостаточно средств");
 
     }
-
 
     @Override
     protected void tearDown() throws Exception {
