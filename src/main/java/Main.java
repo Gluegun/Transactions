@@ -1,64 +1,57 @@
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class Main {
+
+    private static Logger logger = LogManager.getRootLogger();
+    private static final Marker INPUT_OK = MarkerManager.getMarker("INPUT_OK");
+
     public static void main(String[] args) {
 
         Bank bank = new Bank();
 
-        int amountOfAccounts = 3;
+        int amountOfAccounts = 300;
+        logger.info(INPUT_OK, "Создано " + amountOfAccounts + " счетов");
 
-        List<Account> accounts = createAccountList(amountOfAccounts);
+        List<Account> accounts = createAccountList(amountOfAccounts); // создаем список счетов со случайным количеством ДС на счету
 
-        addAccountsToBank(bank, accounts);
+        addAccountsToBank(bank, accounts); // добавляем счета в банк
 
-        int sumOfTransaction = 5000;
+        System.out.println("Before operations");
+        bank.printBankMoneyAmount(); // сумма всех ДС на всех счетах в банке
 
-        System.out.println(sumOfTransaction);
+        startThreadsWithTransferMethod(bank, accounts, 10); // метод, запускающий потоки, выполняющие метод трансфер класса Банк
 
-        Account account1 = accounts.get(0);
-        Account account2 = accounts.get(1);
+        System.out.println("After operations:");
+        bank.printBankMoneyAmount(); // проверка, что после всех операций сумма не изменилась
 
-        System.out.println("total balance: " + (account1.getMoney() + account2.getMoney()));
 
-        System.out.println(account1.getAccNumber() + " " + bank.getBalance(account1.getAccNumber()));
-        System.out.println(account2.getAccNumber() + " " + bank.getBalance(account2.getAccNumber()));
+    }
 
-        Thread thread1;
-        Thread thread;
-        Random random = new Random();
+    private static void startThreadsWithTransferMethod(Bank bank, List<Account> accounts, int amountOfThreads) {
 
-        for (int i = 0; i < 10; i++) {
-
-            int nextInt = random.nextInt(60000);
-            System.out.println(nextInt);
-            thread1 = new Thread((() -> bank.transfer(account1.getAccNumber(), account2.getAccNumber(), nextInt)));
-            thread = new Thread((() -> bank.transfer(account2.getAccNumber(), account1.getAccNumber(), nextInt)));
-
-            thread1.start();
+        for (int i = 0; i < amountOfThreads; i++) {
+            Thread thread = new Thread(() -> {
+                for (int j = 0; j < 30; j++) {
+                    String from = accounts.get((int) (Math.random() * accounts.size())).getAccNumber();
+                    String to = accounts.get((int) (Math.random() * accounts.size())).getAccNumber();
+                    int sum = (int) (Math.random() * 52000);
+                    bank.transfer(from, to, sum);
+                }
+            });
             thread.start();
-
             try {
-                thread1.join();
                 thread.join();
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
         }
-
-        System.out.println(account1.getAccNumber() + ": " + account1.getMoney());
-        System.out.println(account2.getAccNumber() + ": " + account2.getMoney());
-
-        System.out.println("total balance: " + (account1.getMoney() + account2.getMoney()));
-
-
-//        System.out.println(bank.getBalance("1"));
-//        for (Account account : accounts) {
-//            if (account.getAccNumber().equals("1")) {
-//                System.out.println(account.getMoney());
-//            }
-//        }
     }
 
     public static List<Account> createAccountList(int amount) {
@@ -76,5 +69,6 @@ public class Main {
             accNumber = account.getAccNumber();
             bank.addAccountsToMap(accNumber, account);
         }
+        logger.info("Счета добавлены в банк в количестве: " + accounts.size() + " шт.");
     }
 }
