@@ -16,7 +16,7 @@ public class Main {
 
         Bank bank = new Bank();
 
-        int amountOfAccounts = 300;
+        int amountOfAccounts = 30;
         logger.info(INPUT_OK, "Создано " + amountOfAccounts + " счетов");
 
         List<Account> accounts = createAccountList(amountOfAccounts); // создаем список счетов со случайным количеством ДС на счету
@@ -26,7 +26,7 @@ public class Main {
         System.out.println("Before operations");
         bank.printBankMoneyAmount(); // сумма всех ДС на всех счетах в банке
 
-        startThreadsWithTransferMethod(bank, accounts, 10); // метод, запускающий потоки, выполняющие метод трансфер класса Банк
+        startThreadsWithTransferMethod(bank, accounts, 10, 3000); // метод, запускающий потоки, выполняющие метод трансфер класса Банк
 
         System.out.println("After operations:");
         bank.printBankMoneyAmount(); // проверка, что после всех операций сумма не изменилась
@@ -34,11 +34,11 @@ public class Main {
 
     }
 
-    private static void startThreadsWithTransferMethod(Bank bank, List<Account> accounts, int amountOfThreads) {
+    private static void startThreadsWithTransferMethod(Bank bank, List<Account> accounts, int amountOfThreads, int amountOfTransactions) {
 
         for (int i = 0; i < amountOfThreads; i++) {
             Thread thread = new Thread(() -> {
-                for (int j = 0; j < 30; j++) {
+                for (int j = 0; j < amountOfTransactions; j++) {
                     String from = accounts.get((int) (Math.random() * accounts.size())).getAccNumber();
                     String to = accounts.get((int) (Math.random() * accounts.size())).getAccNumber();
                     int sum = (int) (Math.random() * 52000);

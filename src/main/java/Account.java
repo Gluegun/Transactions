@@ -2,10 +2,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 @EqualsAndHashCode
 @ToString
-public class Account {
+public class Account implements Comparable<Account> {
 
     @Getter
     @Setter
@@ -23,4 +24,8 @@ public class Account {
         this.accNumber = Long.toString(id);
     }
 
+    @Override
+    public int compareTo(@NotNull Account o) {
+        return this.getAccNumber().compareTo(o.getAccNumber());
+    }
 }

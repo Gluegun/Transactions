@@ -4,7 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -46,8 +48,8 @@ public class Bank extends Thread {
         Account from = accounts.get(accountNumFrom);
         Account to = accounts.get(accountNumTo);
 
-        synchronized (from) {
-            synchronized (to) {
+        synchronized (from.compareTo(to) > 0 ? from : to) {
+            synchronized (to.compareTo(from) > 0 ? to : from) {
 
                 try {
                     if (amount > 50000 && isFraud()) {
